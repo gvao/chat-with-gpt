@@ -6,6 +6,8 @@ const Home = () => {
     const [message, setMessage] = useState('')
     const [conversations, setConversations] = useState([])
 
+    const addMessage = (newMessage) => setConversations(state => ([...state, newMessage]))
+
     const getchatgpt = async (message) => {
         const response = await fetch('/api/chat', {
             method: 'POST',
@@ -20,13 +22,13 @@ const Home = () => {
 
     const onSubmit = async event => {
         event.preventDefault()
-        setConversations([...conversations, { role: 'user', message: message, id }])
-        const { message: messageGpt } = await getchatgpt(message)
 
-        console.log(messageGpt)
+        addMessage({ role: 'user', content: message, id })
+
+        const { message: messageGpt } = await getchatgpt(message)
+        addMessage({ ...messageGpt, id })
 
         setMessage('')
-        setConversations([...conversations, { role: 'assistent', message: messageGpt, id }])
     }
 
     return (
@@ -42,7 +44,7 @@ const Home = () => {
             <ul className="conversation">
                 {
                     conversations.map((conversation, i) => (
-                        <li key={i}>{conversation.role}: {conversation.message}</li>
+                        <li key={i}>{conversation.role}: {conversation.content}</li>
                     ))
                 }
             </ul>
